@@ -16,6 +16,8 @@ services:
   telegraf:
     image: telegraf:1.1
     mem_limit: 134217728 #128
+    ports:
+    - "8125/udp:8125/udp" #Lets us submit StatsD events
     links:
     - influxdb
     volumes:
@@ -25,7 +27,7 @@ services:
     image: grafana/grafana:4.0.1
     mem_limit: 268435456 #256
     ports:
-    - "3000:3000"
+    - "8080:3000"
     links:
     - influxdb
     volumes:
@@ -34,7 +36,7 @@ services:
   htmlexport:
     image: codecounselor/htmlexport:0.1.6
     ports:
-    - "8080:3000"
+    - "8081:3000"
     links:
     - telegraf
     volumes:

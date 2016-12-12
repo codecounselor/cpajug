@@ -13,4 +13,17 @@ Once the containers are running you can access the following:
 
 Note: The port mappings are defined in docker-compose.yml and can be modified if necessary.
 
+# InfluxDB Line Protocol 
 
+```
+curl -i -XPOST "http://influxdb:8086/write?db=jug" --data-binary 'weather,
+host=$HOST,location=us-midwest temperature=82 1465839830100400200'
+```
+
+# Telegraf StatsD 
+
+`echo "weather.report,host=$HOST,location=us-midwest,attr=temperature:82|g" | nc -w 1 -u influxdb 8125`
+
+# Some Influx Queries
+
+select sum(count), max(max) from /window/ where time > now() - 2d group by time(1d)
