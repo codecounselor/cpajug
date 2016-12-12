@@ -1,0 +1,44 @@
+version: '2'
+services:
+
+  influxdb:
+    image: codecounselor/influxdb:1.1
+    ports:
+    - "8083:8083" # Administration Port
+    - "8086:8086" # Without this the admin UI won't work
+    - "8089:8089" # UDP Port
+    environment:
+      INFLUXDB_UDP_ENABLED: "true"
+    mem_limit: 536870912 #512
+    volumes:
+    - /mnt/tsdbjug/influxdb:/var/lib/influxdb
+
+  telegraf:
+    image: telegraf:1.1
+    mem_limit: 134217728 #128
+    links:
+    - influxdb
+    volumes:
+    - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+  grafana:
+    image: grafana/grafana:4.0.1
+    mem_limit: 268435456 #256
+    ports:
+    - "3000:3000"
+    links:
+    - influxdb
+    volumes:
+    - /mnt/tsdbjug/grafana:/var/lib/grafana
+
+  htmlexport:
+    image: codecounselor/htmlexport:0.1.6
+    ports:
+    - "8080:3000"
+    links:
+    - telegraf
+    volumes:
+    - /mnt/tsdbjug/exportdata:/data
+    environment:
+      HTMLEXPORT_STATSD_HOST: "telegraf"
+
